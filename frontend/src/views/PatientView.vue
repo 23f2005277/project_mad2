@@ -1,7 +1,9 @@
 <script setup>
-import PatientReg  from '@/components/PatientReg.vue';
+
+import PatientDash from '@/components/PatientDash.vue';
 
 </script>
+
 <template>
-    <PatientReg />
+   <PatientDash />
 </template>
