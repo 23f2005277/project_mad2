@@ -21,11 +21,6 @@ db.init_app(app)
 jwt = JWTManager(app)
 #cache = Cache()
 
-@jwt.invalid_token_loader
-def invalid_token_callback(error):
-    print("Invalid token error:", error)
-    return jsonify({'message': 'Invalid token', 'error': str(error)}), 422
-
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -605,7 +600,7 @@ def patient_all_appointments():
     current_user = int(get_jwt_identity())
     patient = Patient.query.filter_by(puser_id=current_user).first()
 
-    appointments = Appointment.query.filter_by(apatient_id=patient.patient_id).filter(Appointment.status != "Cancelled").all()
+    appointments = Appointment.query.filter_by(apatient_id=patient.patient_id).filter(Appointment.status == "Booked").all()
 
     result = []
     for appt in appointments:
@@ -829,6 +824,94 @@ def patient_history(patient_id):
         })
     return jsonify({'patient_name': patient.name, 'medical_history': patient.medical_history, 'age': patient.age, 'data': result}), 200
 
+@app.route('/api/patient/appointment_history', methods=['GET'])
+@jwt_required()
+def patient_appointments():
+    if get_jwt().get('role') != 'patient':
+        return jsonify({'message': 'Patient access required'}), 403
+
+    user_id = int(get_jwt_identity())
+    patient = Patient.query.filter_by(puser_id=user_id).first()
+
+    if not patient:
+        return jsonify({'message': 'Patient not found'}), 404
+
+    appointments = Appointment.query.filter_by(
+        apatient_id=patient.patient_id, status="Completed"
+    ).order_by(Appointment.appointment_date.desc()).all()
+
+    result = []
+    for appt in appointments:
+        treatment = appt.treatment
+        result.append({
+            'appointment_id': appt.appointment_id,
+            'appointment_date': appt.appointment_date.strftime('%Y-%m-%d'),
+            'appointment_time': appt.appointment_time.strftime('%H:%M'),
+            'doctor_name': appt.doctor.name,
+            'department': appt.doctor.department.department_name,
+            'status': appt.status,
+            'mode': appt.mode,
+            'treatment': treatment.treatment,
+            'prescription': treatment.prescription,
+            'info': treatment.info
+        })
+
+    return jsonify({'data': result}), 200
+
+@app.route('/api/admin/allappointment', methods=['GET'])
+@jwt_required()
+def admin_all_appointments():
+    if get_jwt().get('role') != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+
+    appointments = Appointment.query.all()
+
+    result = []
+    for appt in appointments:
+        result.append({
+            'appointment_id': appt.appointment_id,
+            'doctor_name': appt.doctor.name,
+            'patient_name': appt.patient.name,
+            'patient_id': appt.apatient_id,
+            'appointment_date': appt.appointment_date.strftime('%Y-%m-%d'),
+            'appointment_time': appt.appointment_time.strftime('%H:%M'),
+            'status': appt.status,
+            'mode': appt.mode,
+            'department_name': appt.doctor.department.department_name,
+        })
+    return jsonify({'data': result}), 200
+
+@app.route('/api/admin/treatment_info/<int:patient_id>', methods=['GET'])
+@jwt_required()
+def treatment_info(patient_id):
+    if get_jwt().get('role') != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+
+    patient = Patient.query.get(patient_id)
+    if not patient:
+        return jsonify({'message': 'Patient not found'}), 404
+    
+    treatments = (Treatment.query
+        .join(Appointment, Treatment.tappointment_id == Appointment.appointment_id)
+        .filter(Appointment.apatient_id == patient.patient_id, Appointment.status == "Completed")
+        .order_by(Appointment.appointment_date.desc())
+        .all())
+
+    result = []
+    for treatment in treatments:
+        appointment = treatment.appointment
+        doctor = appointment.doctor
+        result.append({
+            'treatment_id': treatment.treatment_id,
+            'treatment': treatment.treatment,
+            'prescription': treatment.prescription,
+            'info': treatment.info,
+            'visit_method': treatment.visit_method,
+            'appointment_date': appointment.appointment_date.strftime('%Y-%m-%d'),
+            'doctor_name': doctor.name,
+            'department': doctor.department.department_name
+        })
+    return jsonify({'patient_id': patient.patient_id, 'patient_name': patient.name, 'medical_history': patient.medical_history, 'age': patient.age, 'data': result}), 200
 
 def admin_creation():
     admin = User.query.filter_by(username='admin').first()
