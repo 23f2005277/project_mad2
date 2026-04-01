@@ -50,6 +50,7 @@ class Department(db.Model):
     department_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     department_name = db.Column(db.String, nullable=False, unique=True)
     department_desc = db.Column(db.Text)
+    active = db.Column(db.Boolean, default=True)
 
     doctors = db.relationship('Doctor', back_populates='department', cascade="all, delete-orphan")
 
