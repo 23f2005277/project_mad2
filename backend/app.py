@@ -969,6 +969,37 @@ def admin_search():
 
     return jsonify({'data': results, 'type': search_type, 'query': search_query}), 200
 
+@app.route('/api/patient/search', methods=['GET'])
+@jwt_required()
+def patient_search():
+    if get_jwt().get('role') != 'patient':
+        return jsonify({'message': 'Patient access required'}), 403
+
+    search_query = request.args.get('q', '').strip()
+
+    if not search_query:
+        return jsonify({'data': []}), 200
+
+    doctors = Doctor.query.join(Department).join(User).filter(
+        User.active == True,
+        db.or_(
+            Doctor.name.ilike(f'%{search_query}%'),
+            Doctor.qualification.ilike(f'%{search_query}%'),
+            Department.department_name.ilike(f'%{search_query}%')
+        )
+    ).order_by(Doctor.name.asc()).all()
+
+    results = [{
+        'doctor_id': d.doctor_id,
+        'name': d.name,
+        'qualification': d.qualification,
+        'experience_years': d.experience_years,
+        'department': d.department.department_name,
+        'department_id': d.ddepartment_id
+    } for d in doctors]
+
+    return jsonify({'data': results}), 200
+
 def admin_creation():
     admin = User.query.filter_by(username='admin').first()
     if not admin:
