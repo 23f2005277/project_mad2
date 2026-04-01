@@ -913,6 +913,62 @@ def treatment_info(patient_id):
         })
     return jsonify({'patient_id': patient.patient_id, 'patient_name': patient.name, 'medical_history': patient.medical_history, 'age': patient.age, 'data': result}), 200
 
+@app.route('/api/admin/search', methods=['GET'])
+@jwt_required()
+def admin_search():
+    if get_jwt().get('role') != 'admin':
+        return jsonify({'message': 'Admin access required'}), 403
+
+    search_query = request.args.get('q', '').strip()
+    search_type = request.args.get('type')
+
+    if not search_query or not search_type:
+        return jsonify({'data': []}), 200
+
+    results = []
+
+    if search_type == 'doctor':
+        doctors = Doctor.query.join(Department).join(User).filter(
+            User.active == True,
+            db.or_(
+                Doctor.name.ilike(f'%{search_query}%'),
+                Doctor.qualification.ilike(f'%{search_query}%'),
+                Doctor.contact.ilike(f'%{search_query}%'),
+                Department.department_name.ilike(f'%{search_query}%'),
+                User.email_id.ilike(f'%{search_query}%')
+            )
+        ).order_by(Doctor.name.asc()).all()
+
+        results = [{
+            'doctor_id': d.doctor_id,
+            'name': d.name,
+            'qualification': d.qualification,
+            'contact': d.contact,
+            'experience_years': d.experience_years,
+            'department': d.department.department_name,
+            'email': d.user.email_id,
+            'username': d.user.username
+        } for d in doctors]
+    
+    elif search_type == 'patient':
+        patients = Patient.query.join(User).filter(User.active == True,
+            db.or_(
+                Patient.name.ilike(f'%{search_query}%'),
+                Patient.contact.ilike(f'%{search_query}%'),
+                Patient.patient_id == int(search_query) if search_query.isdigit() else False
+            )
+        ).all()
+
+        results = [{
+            'patient_id': p.patient_id,
+            'name': p.name,
+            'age': p.age,
+            'contact': p.contact,
+            'gender': p.gender,
+        } for p in patients]
+
+    return jsonify({'data': results, 'type': search_type, 'query': search_query}), 200
+
 def admin_creation():
     admin = User.query.filter_by(username='admin').first()
     if not admin:
