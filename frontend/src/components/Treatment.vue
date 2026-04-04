@@ -55,32 +55,149 @@ const addTreatment = async () => {
 </script>
 
 <template>
-    <div>
-        <button @click="router.push('/doctor')">Back to Dashboard</button>
-        <h1>{{ existingTreatment ? 'Update Treatment' : 'Add Treatment' }}</h1>
+    <div class="page-wrapper">
  
-        <form @submit.prevent="addTreatment">
+        <header>
             <div>
-                <label for="treatment">Treatment:</label>
-                <textarea id="treatment" v-model="treatmentData.treatment" rows="3" required></textarea>
+                <h1>{{ existingTreatment ? 'Update Treatment' : 'Add Treatment' }}</h1>
             </div>
-            <div>
-                <label for="prescription">Prescription:</label>
-                <textarea id="prescription" v-model="treatmentData.prescription" rows="3" required></textarea>
+            <div class="header-actions">
+                <a @click="router.push('/doctor')" class="primary">Back to Dashboard</a>
             </div>
-            <div>
-                <label for="info">Additional Info:</label>
-                <textarea id="info" v-model="treatmentData.info" rows="3"></textarea>
-            </div>
-            <div>
-                <label for="visit_method">Visit Method:</label>
-                <select id="visit_method" v-model="treatmentData.visit_method">
-                    <option value="" disabled>Select visit method</option>
-                    <option value="In-person">In-person</option>
-                    <option value="Online">Online</option>
-                </select>
-            </div>
-            <button type="submit">Save Treatment</button>
-        </form>
+        </header>
+ 
+        <div class="list">
+            <h2>Treatment Details</h2>
+            <form @submit.prevent="addTreatment" class="form-body">
+                <div class="form-group">
+                    <label for="treatment">Treatment:</label>
+                    <textarea id="treatment" v-model="treatmentData.treatment" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="prescription">Prescription:</label>
+                    <textarea id="prescription" v-model="treatmentData.prescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="info">Additional Info:</label>
+                    <textarea id="info" v-model="treatmentData.info" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="visit_method">Visit Method:</label>
+                    <select id="visit_method" v-model="treatmentData.visit_method">
+                        <option value="" disabled>Select visit method</option>
+                        <option value="In-person">In-person</option>
+                        <option value="Online">Online</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Save Treatment</button>
+                </div>
+            </form>
+        </div>
+ 
     </div>
 </template>
+ 
+<style scoped>
+* {
+    margin: 0px;
+    padding: 0px;
+}
+ 
+.page-wrapper {
+    background-color: rgb(133, 133, 218);
+    min-height: 100vh;
+    padding: 20px;
+}
+ 
+header {
+    text-align: center;
+    margin: 5vh;
+    height: 20vh;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: wrap;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+}
+ 
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+ 
+.primary {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    background: rgb(89, 89, 220);
+    color: #f9f9f9;
+}
+ 
+.list {
+    margin-bottom: 40px;
+    padding: 25px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+ 
+.list h2 {
+    margin-bottom: 20px;
+    color: black;
+    font-size: 25px;
+    border-bottom: 2px solid black;
+    padding-bottom: 10px;
+}
+ 
+.form-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+ 
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+ 
+.form-group label {
+    font-weight: 500;
+    font-size: 15px;
+}
+ 
+.form-group textarea,
+.form-group select {
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    resize: vertical;
+}
+ 
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+ 
+.form-actions button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+}
+</style>
+ 

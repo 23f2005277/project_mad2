@@ -3,7 +3,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Doctor, Patient, Department, Appointment, Treatment, Present
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, get_jwt
-#from flask_cache import Cache
+from flask_caching import Cache
 from datetime import timedelta, date, datetime, time
 
 
@@ -12,14 +12,14 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'secretkeytocreatesecuretokensforitotwork'
-#app.config['CACHE_TYPE'] = 'redis'
-#app.config['CACHE_REDIS_HOST'] = 'redis ://localhost:6379/0'
+app.config['CACHE_TYPE'] = 'RedisCache'
+app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0'
 
 
 CORS(app)
 db.init_app(app)
 jwt = JWTManager(app)
-#cache = Cache()
+cache = Cache(app)
 
 @app.route('/api/register', methods=['POST'])
 def register():
@@ -95,11 +95,12 @@ def add_doctor():
 
     db.session.add(doctor)
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Doctor added successfully'}), 201
 
 @app.route('/api/alldoctors', methods=['GET'])
-#@cache.cached(timeout=60)
+@cache.cached(timeout=60)
 @jwt_required()
 def all_doctors():
     if get_jwt().get('role') != 'admin':
@@ -148,6 +149,8 @@ def update_doctor(doctor_id):
         user.password = generate_password_hash(data['password'])
 
     db.session.commit()
+    cache.clear()
+
     return jsonify({'message': 'Doctor updated successfully'}), 200
 
 @app.route('/api/delete_doctor/<int:doctor_id>', methods=['DELETE'])
@@ -169,6 +172,7 @@ def delete_doctor(doctor_id):
                                   Present.available_date >= current_day).delete()
         doctor.user.active = False
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Doctor deleted successfully'}), 200
 
@@ -189,11 +193,13 @@ def add_department():
     )
     db.session.add(department)
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Departments added successfully'}), 201
 
 @app.route('/api/alldepartments', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=60)
 def all_departments():
     #if get_jwt().get('role') != 'admin':
     #    return jsonify({'message': 'Admin access required'}), 403
@@ -225,6 +231,8 @@ def update_department(department_id):
     department.department_desc = data.get('department_desc', department.department_desc)
 
     db.session.commit()
+    cache.clear()
+
     return jsonify({'message': 'Department updated successfully'}), 200
 
 @app.route('/api/delete_department/<int:department_id>', methods=['DELETE'])
@@ -248,6 +256,7 @@ def delete_department(department_id):
     
     department.active = False
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Department deleted successfully'}), 200
 
@@ -489,11 +498,13 @@ def toggle_slot(present_id):
 
     slot.active = not slot.active
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Slot updated', 'active': slot.active}), 200
 
 @app.route('/api/patient/select_slot/<int:doctor_id>', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=60)
 def select_slot(doctor_id):
     if get_jwt().get('role') != 'patient':
         return jsonify({'message': 'Patient access required'}), 403
@@ -563,6 +574,7 @@ def book_slot(present_id):
     
     db.session.add(add_appointment)
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Slot booked successfully'}), 200
 
@@ -607,6 +619,7 @@ def patient_all_appointments():
         result.append({
             'appointment_id': appt.appointment_id,
             'doctor_name': appt.doctor.name,
+            'department_name': appt.doctor.department.department_name,
             'appointment_date': appt.appointment_date.strftime('%Y-%m-%d'),
             'appointment_time': appt.appointment_time.strftime('%H:%M'),
             'status': appt.status,
@@ -642,6 +655,7 @@ def dcancel_appointment(appointment_id):
 
     appointment.status = "Cancelled"
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Appointment cancelled successfully'}), 200
 
@@ -673,6 +687,7 @@ def pcancel_appointment(appointment_id):
 
     appointment.status = "Cancelled"
     db.session.commit()
+    cache.clear()
 
     return jsonify({'message': 'Appointment cancelled successfully'}), 200
 
@@ -971,6 +986,7 @@ def admin_search():
 
 @app.route('/api/patient/search', methods=['GET'])
 @jwt_required()
+@cache.cached(timeout=60, query_string=True)
 def patient_search():
     if get_jwt().get('role') != 'patient':
         return jsonify({'message': 'Patient access required'}), 403

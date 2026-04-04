@@ -11,6 +11,8 @@ import DoctorSlots from '@/components/DoctorSlots.vue';
 import BookSlot from '@/components/BookSlot.vue';
 import Treatment from '@/components/Treatment.vue';
 import PatientHistory from '@/components/PatientHistory.vue';
+import AppointmentHistory from '@/components/AppointmentHistory.vue'
+import TreatmentInfo from '@/components/TreatmentInfo.vue';
 
 
 const routes = [
@@ -26,6 +28,8 @@ const routes = [
   { path: '/book_slot/:doctor_id', component: BookSlot, meta: { requiresAuth: true, role: 'patient' }},
   { path: '/doctor/treatment/:appointment_id', component: Treatment, meta: { requiresAuth: true, role: 'doctor' }},
   { path: '/doctor/patient_history/:patient_id', component: PatientHistory, meta: { requiresAuth: true, role: 'doctor' }},
+  { path: '/patient/appointment_history', component: AppointmentHistory, meta: { requiresAuth: true, role: 'patient' }},
+  { path: '/admin/treatment_info/:patient_id', component: TreatmentInfo, meta: { requiresAuth: true, role: 'admin' }},
   { path: '/:catchAll(.*)', redirect: '/' }
 ]
 
