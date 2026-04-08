@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/views/Home.vue'
 import AdminView from '@/views/AdminView.vue' 
 import PatientView from '@/views/PatientView.vue'
 import DoctorView from '@/views/DoctorView.vue'
@@ -16,9 +15,8 @@ import TreatmentInfo from '@/components/TreatmentInfo.vue';
 
 
 const routes = [
-  { path: '/', component: Home },
   { path: '/register', component: PatientReg },
-  { path: '/login', component: Login },
+  { path: '/', component: Login },
   { path: '/admin', component: AdminView, meta: { requiresAuth: true, role: 'admin' }},
   { path: '/patient', component: PatientView, meta: { requiresAuth: true, role: 'patient' }},
   { path: '/doctor', component: DoctorView, meta: { requiresAuth: true, role: 'doctor' }},

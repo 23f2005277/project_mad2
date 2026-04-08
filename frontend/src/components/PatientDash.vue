@@ -86,7 +86,7 @@ const onPatientUpdated = () => {
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
-  router.push("/login");
+  router.push("/");
 };
 
 onMounted(async () => {

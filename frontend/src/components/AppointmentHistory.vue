@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
  
 const router = useRouter()
+const toast = useToast()
 const token = localStorage.getItem('token')
 const appointments = ref([])
  
@@ -17,6 +19,19 @@ onMounted(async () => {
         console.error('Error fetching appointments:', error.response)
     }
 })
+
+const exportData = async () => {
+    try{
+        await axios.post('http://127.0.0.1:5001/api/patient/export_data', {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+         toast.success('Report is being generated. You will receive an email shortly!')
+    } catch (error) {
+        toast.error('Could not export history.')
+        console.error('Error exporting history:', error.response)
+    }
+}
+
 </script>
 
 <template>
@@ -29,6 +44,7 @@ onMounted(async () => {
             <br>
             <div class="header-actions">
                 <a @click="router.push('/patient')" class="primary">Back to Dashboard</a>
+                <a @click="exportData" class="export">Export</a>
             </div>
         </header>
  
@@ -109,6 +125,19 @@ header {
     text-decoration: none;
     display: inline-block;
     background: rgb(89, 89, 220);
+    color: #f9f9f9;
+}
+
+.export {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    background: #2d5a3d;
     color: #f9f9f9;
 }
  

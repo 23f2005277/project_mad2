@@ -28,59 +28,106 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="list">
-        <h2>Edit Profile</h2>
-        <form @submit.prevent="updatePatient" class="form-body">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" v-model="Patientform.username" disabled />
+    <div class="page-wrapper">
+
+        <header>
+            <div>
+                <h1>Patient Details</h1>
+                <p v-if="patient">{{ patient.name }}</p>
             </div>
-            <div class="form-group">
-                <label for="email_id">Email:</label>
-                <input type="email" id="email_id" v-model="Patientform.email_id" required />
+            <div class="header-actions">
+                <a @click="goBack" class="primary">Back to Dashboard</a>
             </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" v-model="Patientform.password" placeholder="Leave blank to keep current password" />
-            </div>
-            <div class="form-group">
-                <label for="name">Full Name:</label>
-                <input type="text" id="name" v-model="Patientform.name" required />
-            </div>
-            <div class="form-group">
-                <label for="age">Age:</label>
-                <input type="number" id="age" v-model="Patientform.age" min="0" required />
-            </div>
-            <div class="form-group">
-                <label for="gender">Gender:</label>
-                <select id="gender" v-model="Patientform.gender" required>
-                    <option value="" disabled>Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="address">Address:</label>
-                <textarea id="address" v-model="Patientform.address" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="contact">Contact:</label>
-                <input type="text" id="contact" v-model="Patientform.contact" required />
-            </div>
-            <div class="form-group">
-                <label for="medical_history">Medical History:</label>
-                <textarea id="medical_history" v-model="Patientform.medical_history" rows="3"></textarea>
-            </div>
-            <div class="form-actions">
-                <button type="submit">Update Profile</button>
-            </div>
-        </form>
+        </header>
+
+        <div class="list">
+            <h2>Patient Information</h2>
+            <p v-if="!patient">No patient details available.</p>
+            <table v-else>
+                <tbody>
+                    <tr>
+                        <th>Username</th>
+                        <td>{{ patient.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email</th>
+                        <td>{{ patient.email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Name</th>
+                        <td>{{ patient.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Age</th>
+                        <td>{{ patient.age }}</td>
+                    </tr>
+                    <tr>
+                        <th>Gender</th>
+                        <td>{{ patient.gender }}</td>
+                    </tr>
+                    <tr>
+                        <th>Address</th>
+                        <td>{{ patient.address }}</td>
+                    </tr>
+                    <tr>
+                        <th>Contact</th>
+                        <td>{{ patient.contact }}</td>
+                    </tr>
+                    <tr>
+                        <th>Medical History</th>
+                        <td>{{ patient.medical_history }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 </template>
  
 <style scoped>
+* {
+    margin: 0px;
+    padding: 0px;
+}
+ 
+.page-wrapper {
+    background-color: rgb(133, 133, 218);
+    min-height: 100vh;
+    padding: 20px;
+}
+ 
+header {
+    text-align: center;
+    margin: 5vh;
+    height: 20vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+}
+ 
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+ 
+.primary {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    background: rgb(89, 89, 220);
+    color: #f9f9f9;
+}
+ 
 .list {
     margin-bottom: 40px;
     padding: 25px;
@@ -96,50 +143,25 @@ onMounted(async () => {
     padding-bottom: 10px;
 }
  
-.form-body {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #f9f9f9;
 }
  
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
- 
-.form-group label {
-    font-weight: 500;
-    font-size: 15px;
-}
- 
-.form-group input,
-.form-group textarea,
-.form-group select {
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 14px;
-}
- 
-.form-group input:disabled {
-    background-color: #e9e9e9;
-    color: #888;
-    cursor: not-allowed;
-}
- 
-.form-actions {
-    display: flex;
-    gap: 10px;
-}
- 
-.form-actions button {
-    background-color: #007bff;
+table th {
+    background-color: #2468b0;
     color: white;
-    cursor: pointer;
+    padding: 15px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 16px;
+    width: 200px;
+}
+ 
+table td {
+    padding: 12px;
+    border-bottom: 1px solid #e0e0e0;
     font-size: 14px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
 }
 </style>
