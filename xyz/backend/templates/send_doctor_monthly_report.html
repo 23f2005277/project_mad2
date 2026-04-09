@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+   <h1>Doctor Monthly Report</h1>
+
+<p>Total Completed Appointments: {{ total }}</p>
+<p>Total Treatments Given: {{ total_treatment }}</p>
+
+<table border="1">
+    <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Patient</th>
+        <th>Mode</th>
+        <th>Treatment</th>
+        <th>Prescription</th>
+        <th>Info</th>
+        <th>Visit Method</th>
+    </tr>
+
+    {% for appt in appointment_data %}
+    <tr>
+        <td>{{ appt.date }}</td>
+        <td>{{ appt.time }}</td>
+        <td>{{ appt.patient }}</td>
+        <td>{{ appt.mode }}</td>
+        <td>{{ appt.treatment }}</td>
+        <td>{{ appt.prescription }}</td>
+        <td>{{ appt.info }}</td>
+        <td>{{ appt.visit_method }}</td>
+    </tr>
+    {% endfor %}
+</table> 
+</body>
+</html>

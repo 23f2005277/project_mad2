@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Monthly Report</h1>
+
+<p>Total Appointments: {{ total }}</p>
+<p>Completed: {{ completed }}</p>
+<p>Booked: {{ booked }}</p>
+<p>Cancelled: {{ cancelled }}</p>
+
+<h2>Doctor-wise Summary</h2>
+
+<table border="1">
+    <tr>
+        <th>Doctor</th>
+        <th>Department</th>
+        <th>Booked</th>
+        <th>Completed</th>
+        <th>Cancelled</th>
+    </tr>
+
+    {% for doctor, data in doctor_data.items() %}
+    <tr>
+        <td>{{ doctor }}</td>
+        <td>{{ data.department }}</td>
+        <td>{{ data.booked }}</td>
+        <td>{{ data.completed }}</td>
+        <td>{{ data.cancelled }}</td>
+    </tr>
+    {% endfor %}
+</table>
+    
+</body>
+</html>
